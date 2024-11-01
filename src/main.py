@@ -2,7 +2,9 @@
 
 import argparse
 import logging
-from src.traverse_and_concatenate import traverse_and_concatenate
+
+
+from traverse_and_concatenate import traverse_and_concatenate
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description="Concatenate Python project files into a single text file.")

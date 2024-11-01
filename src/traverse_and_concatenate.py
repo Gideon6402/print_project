@@ -1,7 +1,7 @@
 import os
 import logging
-from .ignore_parser import parse_ignore_file, is_ignored
-from .file_handler import read_file, write_to_output
+from ignore_parser import parse_ignore_file, is_ignored
+from file_handler import read_file, write_to_output
 
 def traverse_and_concatenate(root_dir, output_file, ignore_file):
     spec = parse_ignore_file(ignore_file)

@@ -1,0 +1,1 @@
+[] automatically add the output to the ignore list

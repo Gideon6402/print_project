@@ -1,2 +1,2 @@
 [console_scripts]
-concatenate_project = concatenate_project.main:main
+print_project = main:main

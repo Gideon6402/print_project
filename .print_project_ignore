@@ -111,3 +111,8 @@ ehthumbs.db
 *.temp
 *.bak
 *.backup
+
+.git/
+.gitignore
+.print_project_ignore
+text.txt

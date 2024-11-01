@@ -1,0 +1,139 @@
+
+# ----- setup.py -----
+# setup.py
+
+from setuptools import setup, find_packages
+import os
+
+# Read the contents of README.md for the long description
+with open("README.md", "r", encoding="utf-8") as fh:
+    long_description = fh.read()
+
+# Extract the version number from a version file or define it here
+version = "1.0.0"
+
+setup(
+    name="print_project",
+    version=version,
+    author="Gideon",
+    url="https://github.com/gideon6402/print_project",
+    package_dir={"": "src"},
+    packages=find_packages(where="src"),
+    install_requires=[
+        "pathspec==0.10.1",
+    ],
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
+    ],
+    python_requires='>=3.6',
+    entry_points={
+        'console_scripts': [
+            'print_project=main:main',
+        ],
+    },
+    include_package_data=True,
+    zip_safe=False,
+)
+
+
+# Old name: concatenate_project
+# ----- output.txt -----
+
+# ----- README.md -----
+
+# ----- todo.md -----
+[] automatically add the output to the ignore list
+# ----- src/__init__.py -----
+
+# ----- src/ignore_parser.py -----
+import pathspec
+
+def parse_ignore_file(ignore_file_path):
+    with open(ignore_file_path, 'r') as f:
+        return pathspec.PathSpec.from_lines('gitwildmatch', f)
+
+def is_ignored(file_path, spec):
+    return spec.match_file(file_path)
+
+# ----- src/traverse_and_concatenate.py -----
+import os
+import logging
+from ignore_parser import parse_ignore_file, is_ignored
+from file_handler import read_file, write_to_output
+
+def traverse_and_concatenate(root_dir, output_file, ignore_file):
+    spec = parse_ignore_file(ignore_file)
+    with open(output_file, 'w', encoding='utf-8') as outfile:
+        for current_path, dirs, files in os.walk(root_dir):
+            # Modify dirs in-place to skip ignored directories
+            dirs[:] = [d for d in dirs if not is_ignored(os.path.join(current_path, d), spec)]
+            for file in files:
+                file_path = os.path.join(current_path, file)
+                relative_path = os.path.relpath(file_path, root_dir)
+                if is_ignored(relative_path, spec):
+                    logging.info(f"Excluding {relative_path}")
+                    continue
+                try:
+                    content = read_file(file_path)
+                    outfile.write(f'\n# ----- {relative_path} -----\n')
+                    outfile.write(content)
+                    logging.info(f"Added {relative_path}")
+                except Exception as e:
+                    logging.error(f"Failed to read {relative_path}: {e}")
+
+# ----- src/file_handler.py -----
+def read_file(file_path):
+    with open(file_path, 'r', encoding='utf-8') as infile:
+        return infile.read()
+
+def write_to_output(output_file, content):
+    with open(output_file, 'a', encoding='utf-8') as outfile:
+        outfile.write(content)
+
+# ----- src/main.py -----
+#!/usr/bin/env python3
+
+import argparse
+import logging
+
+
+from traverse_and_concatenate import traverse_and_concatenate
+
+def parse_arguments():
+    parser = argparse.ArgumentParser(description="Concatenate Python project files into a single text file.")
+    parser.add_argument('--root', required=True, help='Root directory of the Python project.')
+    parser.add_argument('--output', required=True, help='Output text file path.')
+    parser.add_argument('--ignore', default='.gitignore', help='Path to the ignore file.')
+    return parser.parse_args()
+
+def setup_logging():
+    logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
+
+def main():
+    args = parse_arguments()
+    setup_logging()
+    traverse_and_concatenate(args.root, args.output, args.ignore)
+
+if __name__ == "__main__":
+    main()
+
+# ----- tests/test_ignore_parser.py -----
+import unittest
+from src.ignore_parser import parse_ignore_file, is_ignored
+
+class TestIgnoreParser(unittest.TestCase):
+    def setUp(self):
+        self.spec = parse_ignore_file('examples/example_gitignore')
+
+    def test_ignored_file(self):
+        self.assertTrue(is_ignored('venv/lib/python3.8/site-packages', self.spec))
+        self.assertTrue(is_ignored('temp/data.txt', self.spec))
+
+    def test_non_ignored_file(self):
+        self.assertFalse(is_ignored('src/main.py', self.spec))
+        self.assertFalse(is_ignored('README.md', self.spec))
+
+if __name__ == '__main__':
+    unittest.main()
