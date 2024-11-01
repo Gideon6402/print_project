@@ -13,12 +13,12 @@ version = "1.0.0"
 setup(
     name="print_project",  # Package name (must be unique if uploading to PyPI)
     version=version,
-    author="Your Name",
-    author_email="your.email@example.com",
-    description="A tool to concatenate Python project files into a single text file with .gitignore-like exclusions.",
-    long_description=long_description,
-    long_description_content_type="text/markdown",
-    url="https://github.com/yourusername/concatenate_project",  # Replace with your repository URL
+    author="Gideon",
+    # author_email="your.email@example.com",
+    # description="A tool to concatenate Python project files into a single text file with .gitignore-like exclusions.",
+    # long_description=long_description,
+    # long_description_content_type="text/markdown",
+    url="https://github.com/gideon6402/print_project",  # Replace with your repository URL
     package_dir={"": "src"},  # Tells setuptools that packages are under src/
     packages=find_packages(where="src"),  # Automatically find packages in src/
     install_requires=[
